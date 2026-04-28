@@ -1,0 +1,50 @@
+# Default dnsmasq fragment template for a single mail-host instance.
+#
+# Variables expected in the consumer's /env file:
+#   MAIL_NAME      — short name (mail1, mail2, ...)
+#   MAIL_HOSTNAME  — FQDN (mail1.test)
+#   MAIL_IP        — IP of the SMTP/IMAP host (postfix or unified mail container)
+#   POSTGRES_IP    — IP of the per-instance postgres
+#   MAIL_PTR       — reverse-DNS form of MAIL_IP (e.g. 11.0.99.10.in-addr.arpa)
+#   MTA_STS_ID     — opaque ID for MTA-STS announcement (e.g. 20260218)
+#   API_IP         — IP of the autoconfig/autodiscover/mta-sts web responder
+#
+# Override by mounting a custom template at /tmpl:ro at render time.
+
+# A records
+address=/${MAIL_HOSTNAME}/${MAIL_IP}
+address=/postgres-${MAIL_NAME}/${POSTGRES_IP}
+
+# MX
+mx-host=${MAIL_HOSTNAME},${MAIL_HOSTNAME},10
+
+# Reverse DNS
+ptr-record=${MAIL_PTR},${MAIL_HOSTNAME}
+
+# SPF
+txt-record=${MAIL_HOSTNAME},"v=spf1 ip4:${MAIL_IP} -all"
+
+# DMARC
+txt-record=_dmarc.${MAIL_HOSTNAME},"v=DMARC1; p=reject; rua=mailto:postmaster@${MAIL_HOSTNAME}"
+
+# MTA-STS announcement
+txt-record=_mta-sts.${MAIL_HOSTNAME},"v=STSv1; id=${MTA_STS_ID}"
+
+# TLS-RPT
+txt-record=_smtp._tls.${MAIL_HOSTNAME},"v=TLSRPTv1; rua=mailto:tls-reports@${MAIL_HOSTNAME}"
+
+# Autoconfig / Autodiscover / MTA-STS web → API
+address=/autoconfig.${MAIL_HOSTNAME}/${API_IP}
+address=/autodiscover.${MAIL_HOSTNAME}/${API_IP}
+address=/mta-sts.${MAIL_HOSTNAME}/${API_IP}
+
+# SRV — IMAP
+srv-host=_imap._tcp.${MAIL_HOSTNAME},${MAIL_HOSTNAME},143,0,5
+srv-host=_imaps._tcp.${MAIL_HOSTNAME},${MAIL_HOSTNAME},993,0,5
+
+# SRV — POP3
+srv-host=_pop3._tcp.${MAIL_HOSTNAME},${MAIL_HOSTNAME},110,0,5
+srv-host=_pop3s._tcp.${MAIL_HOSTNAME},${MAIL_HOSTNAME},995,0,5
+
+# SRV — Submission
+srv-host=_submission._tcp.${MAIL_HOSTNAME},${MAIL_HOSTNAME},587,0,5

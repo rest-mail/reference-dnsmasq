@@ -1,10 +1,16 @@
 FROM alpine:3.20
 
-RUN apk add --no-cache dnsmasq bind-tools tini
+# gettext provides envsubst, used by the render-fragment subcommand.
+RUN apk add --no-cache dnsmasq bind-tools tini gettext
 
 COPY defaults/dnsmasq.conf /etc/dnsmasq.conf
+COPY defaults/render-fragment.tmpl /usr/local/share/render-fragment/default.tmpl
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
-RUN chmod +x /usr/local/bin/entrypoint.sh
+COPY bin/render-fragment /usr/local/bin/render-fragment
+COPY bin/remove-fragment /usr/local/bin/remove-fragment
+RUN chmod +x /usr/local/bin/entrypoint.sh \
+              /usr/local/bin/render-fragment \
+              /usr/local/bin/remove-fragment
 
 EXPOSE 53/tcp 53/udp
 

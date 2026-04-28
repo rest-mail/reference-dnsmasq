@@ -1,7 +1,17 @@
 #!/bin/sh
 set -eu
 
-# Merge any overlay config snippets on top of the baked-in default.
+# Dispatch on first arg. Subcommands run instead of dnsmasq; otherwise the
+# image runs the daemon (default behavior).
+case "${1:-}" in
+  render-fragment|remove-fragment)
+    cmd="$1"
+    shift
+    exec "/usr/local/bin/$cmd" "$@"
+    ;;
+esac
+
+# Default: run dnsmasq with overlay support.
 # Files in /etc/dnsmasq-overlay/ become part of dnsmasq's config-dir.
 OVERLAY_DIR="${DNSMASQ_OVERLAY_DIR:-/etc/dnsmasq-overlay}"
 LOG_LEVEL="${DNSMASQ_LOG_LEVEL:-info}"

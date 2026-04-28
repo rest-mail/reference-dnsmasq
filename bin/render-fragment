@@ -1,0 +1,77 @@
+#!/bin/sh
+# render-fragment — render a dnsmasq overlay fragment from an env file +
+# template, write it into the testbed's fragments volume, with a marker that
+# `task dns:reap` (testbed-side) can use to detect orphans.
+#
+# Usage:
+#   render-fragment --name <NAME> --project <COMPOSE_PROJECT> [--priority <NN>]
+#
+# Required mounts:
+#   -v <env-file>:/env:ro             # KEY=VALUE pairs sourced into env
+#   -v <fragments-volume>:/dst        # writable fragments volume
+#
+# Optional mount:
+#   -v <template>:/tmpl:ro            # consumer-supplied template
+#                                       (defaults to image's default mail-host template)
+#
+# Output:
+#   /dst/<priority>-<name>.conf  (default priority: 10, zero-padded to 2 digits)
+#
+# Example:
+#   docker run --rm \
+#     -v testbed_dnsmasq_fragments:/dst \
+#     -v ./configs/mail1/dns.env:/env:ro \
+#     ghcr.io/rest-mail/reference-dnsmasq:VER \
+#     render-fragment --name mail1 --project mailref-mail1
+
+set -eu
+
+NAME=
+PROJECT=
+PRIORITY=10
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --name)     NAME="$2"; shift 2 ;;
+    --project)  PROJECT="$2"; shift 2 ;;
+    --priority) PRIORITY="$2"; shift 2 ;;
+    -h|--help)
+      sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+      exit 0
+      ;;
+    *)
+      echo "ERROR unknown arg: $1" >&2
+      exit 2
+      ;;
+  esac
+done
+
+[ -n "$NAME" ]    || { echo "ERROR --name required" >&2;    exit 2; }
+[ -n "$PROJECT" ] || { echo "ERROR --project required" >&2; exit 2; }
+[ -f /env ]       || { echo "ERROR /env not mounted (-v <envfile>:/env:ro required)" >&2; exit 2; }
+[ -d /dst ]       || { echo "ERROR /dst not mounted (-v <fragments-volume>:/dst required)" >&2; exit 2; }
+
+TMPL="/tmpl"
+if [ ! -f "$TMPL" ]; then
+  TMPL="/usr/local/share/render-fragment/default.tmpl"
+fi
+[ -f "$TMPL" ] || { echo "ERROR template not found at /tmpl or default location" >&2; exit 2; }
+
+PRIORITY=$(printf "%02d" "$PRIORITY")
+fragment="/dst/${PRIORITY}-${NAME}.conf"
+
+# Source env vars and export them so envsubst sees them.
+set -a
+# shellcheck disable=SC1091
+. /env
+set +a
+
+{
+  echo "# Auto-generated dnsmasq fragment for $NAME"
+  echo "# managed-by-project: $PROJECT"
+  echo "# (rendered by reference-dnsmasq render-fragment)"
+  echo
+  envsubst < "$TMPL"
+} > "$fragment"
+
+echo "wrote $fragment"
