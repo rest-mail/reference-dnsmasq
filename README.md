@@ -99,5 +99,5 @@ MIT.
 
 ## See also
 
-- [`rest-mail/conventions`](https://github.com/rest-mail/conventions) — the contract every `reference-*` image follows (overlay paths, env var naming, signal handling, calver tagging)
+- [`rest-mail/conventions`](https://github.com/rest-mail/conventions) — the contract every `reference-*` image follows (overlay paths, env var naming, signal handling, SemVer tagging)
 - [`rest-mail/testbed`](https://github.com/rest-mail/testbed) — where this image gets composed alongside `reference-certgen` and the reference mail-server pair to form a full local-internet sandbox
