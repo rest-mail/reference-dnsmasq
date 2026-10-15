@@ -7,8 +7,8 @@ Meant to be useful as a standalone DNS sandbox or as the DNS layer of a larger t
 ## Image
 
 ```
-ghcr.io/rest-mail/reference-dnsmasq:latest          # always newest
-ghcr.io/rest-mail/reference-dnsmasq:YYYY.MM.DD      # immutable calver tag
+ghcr.io/rest-mail/reference-dnsmasq:latest          # newest master build; pin a release instead
+ghcr.io/rest-mail/reference-dnsmasq:X.Y.Z          # a release: git tag vX.Y.Z publishes it
 ```
 
 ## Quick start (standalone)
@@ -99,5 +99,5 @@ MIT.
 
 ## See also
 
-- [`rest-mail/conventions`](https://github.com/rest-mail/conventions) — the contract every `reference-*` image follows (overlay paths, env var naming, signal handling, calver tagging)
+- [`rest-mail/conventions`](https://github.com/rest-mail/conventions) — the contract every `reference-*` image follows (overlay paths, env var naming, signal handling, SemVer tagging)
 - [`rest-mail/testbed`](https://github.com/rest-mail/testbed) — where this image gets composed alongside `reference-certgen` and the reference mail-server pair to form a full local-internet sandbox
