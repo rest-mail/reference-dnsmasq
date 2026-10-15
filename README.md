@@ -7,8 +7,8 @@ Meant to be useful as a standalone DNS sandbox or as the DNS layer of a larger t
 ## Image
 
 ```
-ghcr.io/rest-mail/reference-dnsmasq:latest          # always newest
-ghcr.io/rest-mail/reference-dnsmasq:YYYY.MM.DD      # immutable calver tag
+ghcr.io/rest-mail/reference-dnsmasq:latest          # newest master build; pin a release instead
+ghcr.io/rest-mail/reference-dnsmasq:X.Y.Z          # a release: git tag vX.Y.Z publishes it
 ```
 
 ## Quick start (standalone)
