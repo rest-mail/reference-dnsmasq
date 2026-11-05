@@ -7,7 +7,7 @@ Meant to be useful as a standalone DNS sandbox or as the DNS layer of a larger t
 ## Image
 
 ```
-ghcr.io/rest-mail/reference-dnsmasq:latest          # newest master build; pin a release instead
+ghcr.io/rest-mail/reference-dnsmasq:latest          # newest main build; pin a release instead
 ghcr.io/rest-mail/reference-dnsmasq:X.Y.Z          # a release: git tag vX.Y.Z publishes it
 ```
 
@@ -81,7 +81,7 @@ Override anything via overlay snippets.
 ├── defaults/
 │   └── dnsmasq.conf       # baked-in defaults; overlay overrides
 ├── .github/workflows/
-│   └── build.yml          # multi-arch GHCR publish on push to master
+│   └── build.yml          # multi-arch GHCR publish on push to main
 └── tests/
     └── smoke.sh           # spin up + dig + verify
 ```
